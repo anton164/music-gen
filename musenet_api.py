@@ -1,5 +1,5 @@
 import requests
-
+from midi_api import play_notes, reset_all_notes
 
 def musenet_generate(
     musenet_encoding: str, 
@@ -91,3 +91,25 @@ def encode_musenet(notes) -> str:
         encoding.append(selected_idx * 128 + note["pitch"])
         last_timestamp = note["timestamp"]
     return " ".join([str(x) for x in encoding])
+
+
+def play_musenet_response(
+    players,
+    completions,
+    input,
+    play_input=False,
+    idx=0,
+    offset=0
+):
+    encoded_input = encode_musenet(input)
+    encoded_response = completions[idx]["encoding"]
+
+    reset_all_notes(players)
+
+    if not play_input:
+        encoded_response = encoded_response[len(encoded_input):].strip()
+
+    musenet_response = decode_musenet(
+        encoded_response
+    )
+    play_notes(players, musenet_response, offset)
